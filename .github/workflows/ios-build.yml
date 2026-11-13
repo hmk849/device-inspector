@@ -15,7 +15,7 @@ jobs:
         run: |
           xcodebuild \
             -project DeviceInspector.xcodeproj \
-            -target DeviceInspector \
+            -scheme DeviceInspector \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
