@@ -73,6 +73,9 @@ final class InspectorStore: ObservableObject {
     @Published var lastUpdated = Date()
     @Published var isTesting = false
     @Published var testResult = "尚未运行"
+    @Published var gpuTestResult = "尚未运行"
+    @Published var storageTestResult = "尚未运行"
+    @Published var networkSpeedResult = "尚未测速"
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "DeviceInspector.NetworkMonitor")
     private let motion = CMMotionManager()
@@ -195,6 +198,44 @@ final class InspectorStore: ObservableObject {
         isTesting = false
     }
 
+    func runGPUtest() async {
+        isTesting = true
+        gpuTestResult = "GPU 测试中…"
+        do {
+            let result = try await Task.detached(priority: .userInitiated) {
+                try MetalDiagnostics.run()
+            }.value
+            gpuTestResult = String(format: "%.2f ms · %@", result.milliseconds, result.device)
+        } catch {
+            gpuTestResult = "测试失败：\\(error.localizedDescription)"
+        }
+        isTesting = false
+    }
+
+    func runStorageTest() async {
+        isTesting = true
+        storageTestResult = "存储测试中…"
+        do {
+            let result = try await Task.detached(priority: .utility) {
+                try StorageDiagnostics.run()
+            }.value
+            storageTestResult = String(format: "写入 %.1f MB/s · 读取 %.1f MB/s（临时文件 8 MiB）", result.writeMBps, result.readMBps)
+        } catch {
+            storageTestResult = "测试失败：\\(error.localizedDescription)"
+        }
+        isTesting = false
+    }
+
+    func runNetworkSpeedTest() async {
+        networkSpeedResult = "测速中…（约传输 1.25 MB）"
+        do {
+            let result = try await NetworkDiagnostics.run()
+            networkSpeedResult = String(format: "下载 %.1f Mbps · 上传 %.1f Mbps", result.downloadMbps, result.uploadMbps)
+        } catch {
+            networkSpeedResult = "测速失败：\\(error.localizedDescription)"
+        }
+    }
+
     func items(for section: InspectorSection) -> [CheckItem] {
         let device = UIDevice.current
         let process = ProcessInfo.processInfo
@@ -224,6 +265,14 @@ final class InspectorStore: ObservableObject {
             let context = LAContext()
             var authError: NSError?
             let bio = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError)
+            let biometricName: String
+            switch context.biometryType {
+            case .faceID: biometricName = "Face ID"
+            case .touchID: biometricName = "Touch ID"
+            case .opticID: biometricName = "Optic ID"
+            case .none: biometricName = "未配置 / 不支持"
+            @unknown default: biometricName = "未知"
+            }
             let camera = AVCaptureDevice.authorizationStatus(for: .video)
             let mic = AVCaptureDevice.authorizationStatus(for: .audio)
             return [
@@ -231,10 +280,11 @@ final class InspectorStore: ObservableObject {
                 .init(title:"充电状态", value:batteryState, detail:"不代表电池健康度", state:.normal),
                 .init(title:"电池健康度", value:"系统限制，无法读取", detail:"公开 API 不提供最大容量、循环次数或健康百分比", state:.unsupported),
                 .init(title:"电池温度", value:"系统限制，无法读取", detail:"iOS 不向普通 App 公开电池温度", state:.unsupported),
-                .init(title:"生物识别", value:bio ? "支持生物识别" : "不可用或未设置", detail:"系统认证能力；不读取面容/指纹数据", state:bio ? .normal : .warning),
+                .init(title:"生物识别", value:biometricName, detail:"\\(bio ? "可用于认证" : "当前不可用")；不读取面容/指纹数据", state:bio ? .normal : .warning),
                 .init(title:"前后摄像头", value:AVCaptureDevice.default(for: .video) == nil ? "未发现可用摄像头" : "发现视频采集设备", detail:"实际使用前仍需用户授权", state:.normal),
                 .init(title:"摄像头权限", value:Self.permission(camera), detail:"相机访问权限状态", state:camera == .denied ? .warning : .normal),
                 .init(title:"麦克风权限", value:Self.permission(mic), detail:"麦克风访问权限状态", state:mic == .denied ? .warning : .normal),
+                .init(title:"音频输出", value:AVAudioSession.sharedInstance().currentRoute.outputs.map { $0.portName }.joined(separator: "、").isEmpty ? "未检测到输出端口" : AVAudioSession.sharedInstance().currentRoute.outputs.map { $0.portName }.joined(separator: "、"), detail:"当前音频路由；不播放测试音", state:.normal),
                 .init(title:"陀螺仪", value:CMMotionManager().isGyroAvailable ? "可用" : "不可用", detail:"Core Motion 能力检测", state:CMMotionManager().isGyroAvailable ? .normal : .unsupported),
                 .init(title:"加速度计", value:CMMotionManager().isAccelerometerAvailable ? "可用" : "不可用", detail:"Core Motion 能力检测", state:CMMotionManager().isAccelerometerAvailable ? .normal : .unsupported),
                 .init(title:"气压计", value:CMAltimeter.isRelativeAltitudeAvailable() ? "可用" : "不可用", detail:"相对高度/气压数据需启动传感器", state:CMAltimeter.isRelativeAltitudeAvailable() ? .normal : .unsupported),
@@ -248,17 +298,19 @@ final class InspectorStore: ObservableObject {
                 .init(title:"网络类型", value:networkDescription, detail:"NWPathMonitor 提供的接口类型", state:.normal),
                 .init(title:"HTTPS 延迟", value:lastLatency, detail:"对 Apple 测试地址发起一次 HTTPS 请求；不是 ICMP Ping", state:lastLatency == "未测试" ? .waiting : .normal),
                 .init(title:"本机 IP / DNS", value:"部分信息不可读取", detail:"iOS 不提供通用、可靠的 DNS 配置枚举接口；未扫描局域网", state:.unsupported),
-                .init(title:"下载 / 上传速度", value:"未执行测速", detail:"需要访问测速服务器；结果受网络与服务器影响", state:.waiting),
+                .init(title:"下载 / 上传速度", value:networkSpeedResult, detail:"用户主动测速；经 Cloudflare 公共测速端点，结果受服务器和网络影响", state:networkSpeedResult == "尚未测速" ? .waiting : .estimate),
                 .init(title:"蜂窝信号强度", value:"系统限制，无法读取", detail:"普通 App 无法读取精确蜂窝信号指标", state:.unsupported),
                 .init(title:"VPN 状态", value:"未进行可靠判定", detail:"网络接口名称不能作为 VPN 状态的确定证据", state:.unsupported)
             ]
         case .performance:
             return [
                 .init(title:"CPU 基础测试", value:testResult, detail:"本地数学运算微基准；非行业标准跑分", state:testResult == "尚未运行" ? .waiting : .normal),
-                .init(title:"GPU 信息", value:gpu, detail:"Metal 设备标识；未执行标准 GPU 压力测试", state:.normal),
-                .init(title:"内存", value:Self.bytes(Int64(process.physicalMemory)), detail:"物理内存容量；iOS 不允许读取所有进程内存明细", state:.normal),
-                .init(title:"实时内存占用", value:"不提供全局精确值", detail:"进程可用内存受系统策略限制", state:.unsupported),
-                .init(title:"存储读写", value:"未执行破坏性测试", detail:"避免写入大量数据或影响用户文件", state:.waiting),
+                .init(title:"GPU 信息", value:gpu, detail:"Metal 设备标识", state:.normal),
+                .init(title:"GPU 计算测试", value:gpuTestResult, detail:"Metal 向量加法微基准；不是行业标准 GPU 跑分", state:gpuTestResult == "尚未运行" ? .waiting : .estimate),
+                .init(title:"物理内存", value:Self.bytes(Int64(process.physicalMemory)), detail:"系统报告的设备物理内存容量", state:.normal),
+                .init(title:"系统内存概览", value:MemoryDiagnostics.read().map { "已用估算 \(Self.bytes(Int64($0.usedEstimateBytes))) · 空闲 \(Self.bytes(Int64($0.freeBytes)))" } ?? "读取失败", detail:"Mach VM 页统计；属于设备级汇总估算，不代表单个 App 占用", state:MemoryDiagnostics.read() == nil ? .unsupported : .estimate),
+                .init(title:"本 App 内存占用", value:MemoryDiagnostics.read()?.appFootprintBytes.map { Self.bytes(Int64($0)) } ?? "暂不可用", detail:"仅统计 Device Inspector 自身物理内存 footprint", state:MemoryDiagnostics.read()?.appFootprintBytes == nil ? .unsupported : .normal),
+                .init(title:"存储读写", value:storageTestResult, detail:"仅在 App 临时目录读写 8 MiB 测试文件，完成后删除", state:storageTestResult == "尚未运行" ? .waiting : .estimate),
                 .init(title:"游戏帧率", value:"仅限本 App 可测场景", detail:"不能读取其他 App 或全系统游戏帧率", state:.unsupported),
                 .init(title:"热状态", value:Self.thermal(process.thermalState), detail:"ProcessInfo 热状态等级，不是温度读数", state:process.thermalState == .critical ? .warning : .normal),
                 .init(title:"综合性能评分", value:"暂不生成", detail:"不同设备与测试环境不可直接比较；避免伪造评分", state:.unsupported)
@@ -269,7 +321,9 @@ final class InspectorStore: ObservableObject {
                 .init(title:"系统版本 / 构建", value:process.operatingSystemVersionString, detail:"公开系统版本信息；构建号可能不完整", state:.normal),
                 .init(title:"低电量模式", value:process.isLowPowerModeEnabled ? "已开启" : "未开启", detail:"ProcessInfo", state:.normal),
                 .init(title:"热状态", value:Self.thermal(process.thermalState), detail:"系统热状态等级", state:process.thermalState == .critical ? .warning : .normal),
-                .init(title:"后台刷新 / 通知", value:notif, detail:"仅显示本 App 通知注册状态", state:.normal),
+                .init(title:"后台刷新 / 通知", value:notif, detail:"仅显示本 App 远程通知注册状态", state:.normal),
+                .init(title:"低电量模式", value:process.isLowPowerModeEnabled ? "已开启" : "未开启", detail:"ProcessInfo", state:.normal),
+                .init(title:"系统运行时长", value:String(format: "%.1f 小时", process.systemUptime / 3600), detail:"自上次启动以来的运行时间", state:.normal),
                 .init(title:"已安装 App 列表", value:"系统限制，无法枚举", detail:"iOS 沙盒不允许普通 App 获取完整已安装应用列表", state:.unsupported),
                 .init(title:"开发者模式", value:"系统限制，无法读取", detail:"无公开 API 可供普通 App 查询该状态", state:.unsupported),
                 .init(title:"越狱状态", value:"无法可靠判定", detail:"不执行越狱探测或绕过安全机制", state:.unsupported),

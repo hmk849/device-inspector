@@ -11,8 +11,12 @@
   A00000000000000000000005 /* SectionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SectionDetailView.swift; sourceTree = "<group>"; };
   A00000000000000000000006 /* ReportActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ReportActions.swift; sourceTree = "<group>"; };
   A00000000000000000000007 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+  A00000000000000000000009 /* MemoryDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MemoryDiagnostics.swift; sourceTree = "<group>"; };
+  A0000000000000000000000A /* NetworkDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/NetworkDiagnostics.swift; sourceTree = "<group>"; };
+  A0000000000000000000000B /* StorageDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/StorageDiagnostics.swift; sourceTree = "<group>"; };
+  A0000000000000000000000C /* MetalDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/MetalDiagnostics.swift; sourceTree = "<group>"; };
   A00000000000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-  A00000000000000000000010 /* Sources */ = {isa = PBXGroup; children = (A00000000000000000000002, A00000000000000000000003, A00000000000000000000004, A00000000000000000000005, A00000000000000000000006,); path = .; sourceTree = "<group>"; };
+  A00000000000000000000010 /* Sources */ = {isa = PBXGroup; children = (A00000000000000000000002, A00000000000000000000003, A00000000000000000000004, A00000000000000000000005, A00000000000000000000006, A00000000000000000000009, A0000000000000000000000A, A0000000000000000000000B, A0000000000000000000000C,); path = .; sourceTree = "<group>"; };
   A00000000000000000000011 /* DeviceInspector */ = {isa = PBXGroup; children = (A00000000000000000000010, A00000000000000000000007, A00000000000000000000008,); path = DeviceInspector; sourceTree = "<group>"; };
   A00000000000000000000012 /* Products */ = {isa = PBXGroup; children = (A00000000000000000000001,); name = Products; sourceTree = "<group>"; };
   A00000000000000000000013 /* Main Group */ = {isa = PBXGroup; children = (A00000000000000000000011, A00000000000000000000012,); sourceTree = "<group>"; };
@@ -21,8 +25,12 @@
   A00000000000000000000022 /* Content */ = {isa = PBXBuildFile; fileRef = A00000000000000000000004; };
   A00000000000000000000023 /* Detail */ = {isa = PBXBuildFile; fileRef = A00000000000000000000005; };
   A00000000000000000000024 /* Report */ = {isa = PBXBuildFile; fileRef = A00000000000000000000006; };
+  A00000000000000000000026 /* MemoryDiagnostics */ = {isa = PBXBuildFile; fileRef = A00000000000000000000009; };
+  A00000000000000000000027 /* NetworkDiagnostics */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000A; };
+  A00000000000000000000028 /* StorageDiagnostics */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000B; };
+  A00000000000000000000029 /* MetalDiagnostics */ = {isa = PBXBuildFile; fileRef = A0000000000000000000000C; };
   A00000000000000000000025 /* Assets */ = {isa = PBXBuildFile; fileRef = A00000000000000000000007; };
-  A00000000000000000000030 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000020, A00000000000000000000021, A00000000000000000000022, A00000000000000000000023, A00000000000000000000024,); runOnlyForDeploymentPostprocessing = 0; };
+  A00000000000000000000030 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000020, A00000000000000000000021, A00000000000000000000022, A00000000000000000000023, A00000000000000000000024, A00000000000000000000026, A00000000000000000000027, A00000000000000000000028, A00000000000000000000029,); runOnlyForDeploymentPostprocessing = 0; };
   A00000000000000000000031 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000025,); runOnlyForDeploymentPostprocessing = 0; };
   A00000000000000000000040 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
   A00000000000000000000050 /* Target */ = {isa = PBXNativeTarget; buildConfigurationList = A00000000000000000000060; buildPhases = (A00000000000000000000030, A00000000000000000000040, A00000000000000000000031,); buildRules = (); dependencies = (); name = DeviceInspector; productName = DeviceInspector; productReference = A00000000000000000000001; productType = "com.apple.product-type.application"; };

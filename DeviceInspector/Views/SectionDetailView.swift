@@ -28,30 +28,61 @@ struct SectionDetailView: View {
     @ViewBuilder private var controls: some View {
         switch section {
         case .network:
-            Button {
-                Task { await store.testLatency() }
-            } label: {
-                Label("测试 HTTPS 网络延迟", systemImage: "network")
-                    .frame(maxWidth: .infinity)
+            VStack(spacing: 8) {
+                Button {
+                    Task { await store.testLatency() }
+                } label: {
+                    Label("测试 HTTPS 网络延迟", systemImage: "network")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(PrimaryActionStyle())
+                Button {
+                    Task { await store.runNetworkSpeedTest() }
+                } label: {
+                    Label("测试下载 / 上传速度", systemImage: "arrow.down.up")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(PrimaryActionStyle())
             }
-            .buttonStyle(PrimaryActionStyle())
         case .performance:
-            Button {
-                Task { await store.runBasicTest() }
-            } label: {
-                Label(store.isTesting ? "测试中…" : "运行 CPU 基础测试", systemImage: "speedometer")
-                    .frame(maxWidth: .infinity)
+            VStack(spacing: 8) {
+                Button {
+                    Task { await store.runBasicTest() }
+                } label: {
+                    Label(store.isTesting ? "测试中…" : "运行 CPU 基础测试", systemImage: "speedometer")
+                        .frame(maxWidth: .infinity)
+                }
+                .disabled(store.isTesting)
+                .buttonStyle(PrimaryActionStyle())
+                Button {
+                    Task { await store.runGPUtest() }
+                } label: {
+                    Label("运行 Metal GPU 测试", systemImage: "cube.transparent")
+                        .frame(maxWidth: .infinity)
+                }
+                .disabled(store.isTesting)
+                .buttonStyle(PrimaryActionStyle())
+                Button {
+                    Task { await store.runStorageTest() }
+                } label: {
+                    Label("运行存储读写测试", systemImage: "internaldrive")
+                        .frame(maxWidth: .infinity)
+                }
+                .disabled(store.isTesting)
+                .buttonStyle(PrimaryActionStyle())
             }
-            .disabled(store.isTesting)
-            .buttonStyle(PrimaryActionStyle())
         case .sensors:
-            Button {
-                store.startSensors()
-            } label: {
-                Label("开始实时传感器测试", systemImage: "waveform.path")
-                    .frame(maxWidth: .infinity)
+            VStack(spacing: 8) {
+                Button {
+                    store.startSensors()
+                } label: {
+                    Label("开始实时传感器测试", systemImage: "waveform.path")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(PrimaryActionStyle())
+                Button("停止传感器") { store.stopSensors() }
+                    .font(.caption)
             }
-            .buttonStyle(PrimaryActionStyle())
         case .report:
             ReportActions()
         default:

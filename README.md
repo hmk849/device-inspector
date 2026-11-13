@@ -24,3 +24,19 @@
 
 ## GitHub Actions 云端编译
 仓库包含 `.github/workflows/ios-build.yml`。推送到 GitHub 后可在 Actions 页面手动运行，当前工作流用于 iOS Simulator 无签名编译验证，不会生成可直接安装的真机 IPA。真机 IPA 仍需有效签名配置。
+
+## 扩展：Mach 内存诊断
+参考研究了 `matthewmyrick/ios-monitor` 对 iOS 沙盒边界的说明，并自行实现了 `MemoryDiagnostics.swift`：
+- 使用 Mach VM 页计数展示设备级 wired / active / inactive / compressed / free 汇总。
+- 使用 `TASK_VM_INFO` 读取本 App 自身 footprint。
+- 不枚举其他 App 进程，也不读取其他 App 的内存。
+
+上游参考项目： https://github.com/matthewmyrick/ios-monitor
+该上游仓库 README 未声明明确开源许可证，因此本工程没有复制其源代码；这里只参考公开技术说明并独立实现对应功能。Mach 统计接口的可用性及 App Store 审核结果仍需在目标 iOS/Xcode 版本和真机上验证。
+
+## 本次扩展
+- Metal GPU 向量计算微基准。
+- 临时目录 8 MiB 存储读写测试，自动删除测试文件。
+- 用户主动触发的 Cloudflare 网络下载/上传测速（约 1.25 MB 流量）。
+- Face ID / Touch ID / Optic ID 能力区分、音频输出路由、屏幕亮度、系统区域/时区、运行时长。
+- 测试均非 Apple 官方诊断，不用于推断硬件损坏；网络测速会连接第三方测速服务。
