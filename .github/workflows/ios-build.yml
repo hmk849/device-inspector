@@ -1,0 +1,49 @@
+name: iOS Build
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: xcode-select -p
+      - name: Build for iOS device (unsigned)
+        run: |
+          xcodebuild \
+            -project DeviceInspector.xcodeproj \
+            -target DeviceInspector \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+      - name: Package unsigned IPA
+        run: |
+          set -e
+          APP_PATH="$(find build/Build/Products -maxdepth 4 -type d -name '*.app' -print -quit)"
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: no .app found"
+            find build/Build/Products -maxdepth 4 -print
+            exit 1
+          fi
+          echo "APP_PATH=$APP_PATH"
+          mkdir -p build/ipa/Payload
+          cp -R "$APP_PATH" build/ipa/Payload/
+          cd build/ipa
+          zip -r ../DeviceInspector-unsigned.ipa Payload
+          test -s ../DeviceInspector-unsigned.ipa
+          ls -lh ../DeviceInspector-unsigned.ipa
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-inspector-ios-ipa
+          path: build/DeviceInspector-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
