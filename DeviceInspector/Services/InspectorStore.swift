@@ -382,8 +382,9 @@ final class InspectorStore: ObservableObject {
     static func machineIdentifier() -> String {
         var system = utsname()
         uname(&system)
+        let capacity = MemoryLayout.size(ofValue: system.machine)
         return withUnsafePointer(to: &system.machine) {
-            $0.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: system.machine)) {
+            $0.withMemoryRebound(to: CChar.self, capacity: capacity) {
                 String(cString: $0)
             }
         }
@@ -404,8 +405,9 @@ final class InspectorStore: ObservableObject {
     static func kernelVersion() -> String {
         var info = utsname()
         uname(&info)
+        let capacity = MemoryLayout.size(ofValue: info.release)
         return withUnsafePointer(to: &info.release) {
-            $0.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: info.release)) { String(cString: $0) }
+            $0.withMemoryRebound(to: CChar.self, capacity: capacity) { String(cString: $0) }
         }
     }
 }
