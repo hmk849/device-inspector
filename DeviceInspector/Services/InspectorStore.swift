@@ -207,7 +207,7 @@ final class InspectorStore: ObservableObject {
             }.value
             gpuTestResult = String(format: "%.2f ms · %@", result.milliseconds, result.device)
         } catch {
-            gpuTestResult = "测试失败：\\(error.localizedDescription)"
+            gpuTestResult = "测试失败：\(error.localizedDescription)"
         }
         isTesting = false
     }
@@ -221,7 +221,7 @@ final class InspectorStore: ObservableObject {
             }.value
             storageTestResult = String(format: "写入 %.1f MB/s · 读取 %.1f MB/s（临时文件 8 MiB）", result.writeMBps, result.readMBps)
         } catch {
-            storageTestResult = "测试失败：\\(error.localizedDescription)"
+            storageTestResult = "测试失败：\(error.localizedDescription)"
         }
         isTesting = false
     }
@@ -232,7 +232,7 @@ final class InspectorStore: ObservableObject {
             let result = try await NetworkDiagnostics.run()
             networkSpeedResult = String(format: "下载 %.1f Mbps · 上传 %.1f Mbps", result.downloadMbps, result.uploadMbps)
         } catch {
-            networkSpeedResult = "测速失败：\\(error.localizedDescription)"
+            networkSpeedResult = "测速失败：\(error.localizedDescription)"
         }
     }
 
