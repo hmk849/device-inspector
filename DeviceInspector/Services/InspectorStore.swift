@@ -275,12 +275,13 @@ final class InspectorStore: ObservableObject {
             }
             let camera = AVCaptureDevice.authorizationStatus(for: .video)
             let mic = AVCaptureDevice.authorizationStatus(for: .audio)
+            let bioText = bio ? "可用于认证" : "当前不可用"
             return [
                 .init(title:"电池电量", value:batteryLevel, detail:"UIDevice 电量读数", state:batteryLevel == "系统未提供" ? .unsupported : .normal),
                 .init(title:"充电状态", value:batteryState, detail:"不代表电池健康度", state:.normal),
                 .init(title:"电池健康度", value:"系统限制，无法读取", detail:"公开 API 不提供最大容量、循环次数或健康百分比", state:.unsupported),
                 .init(title:"电池温度", value:"系统限制，无法读取", detail:"iOS 不向普通 App 公开电池温度", state:.unsupported),
-                .init(title:"生物识别", value:biometricName, detail:"\\(bio ? "可用于认证" : "当前不可用")；不读取面容/指纹数据", state:bio ? .normal : .warning),
+                .init(title:"生物识别", value:biometricName, detail:"\(bioText)；不读取面容/指纹数据", state:bio ? .normal : .warning),
                 .init(title:"前后摄像头", value:AVCaptureDevice.default(for: .video) == nil ? "未发现可用摄像头" : "发现视频采集设备", detail:"实际使用前仍需用户授权", state:.normal),
                 .init(title:"摄像头权限", value:Self.permission(camera), detail:"相机访问权限状态", state:camera == .denied ? .warning : .normal),
                 .init(title:"麦克风权限", value:Self.permission(mic), detail:"麦克风访问权限状态", state:mic == .denied ? .warning : .normal),
