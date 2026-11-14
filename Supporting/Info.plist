@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key><true/>
+	<key>NSMotionUsageDescription</key><string>用于读取运动传感器进行检测 / Used to test motion sensors.</string>
+	<key>NSCameraUsageDescription</key><string>用于前后摄像头检测，画面不会被保存或上传 / Used to test cameras; nothing is saved or uploaded.</string>
+	<key>NSMicrophoneUsageDescription</key><string>用于麦克风检测，音频不会被录制或上传 / Used to test the microphone; audio is not recorded or uploaded.</string>
+	<key>NSLocationWhenInUseUsageDescription</key><string>用于 GPS 与指南针检测，位置不会被上传 / Used to test GPS and compass; location is never uploaded.</string>
+	<key>NSFaceIDUsageDescription</key><string>用于测试 Face ID 硬件是否可用 / Used to test Face ID hardware.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>weixin</string>
+		<string>mqq</string>
+		<string>alipay</string>
+		<string>sinaweibo</string>
+		<string>snssdk1128</string>
+		<string>taobao</string>
+		<string>bilibili</string>
+		<string>twitter</string>
+		<string>fb</string>
+		<string>instagram</string>
+		<string>whatsapp</string>
+		<string>tg</string>
+		<string>line</string>
+		<string>youtube</string>
+		<string>comgooglemaps</string>
+		<string>spotify</string>
+		<string>nflx</string>
+		<string>uber</string>
+		<string>slack</string>
+		<string>zoommtg</string>
+		<string>dingtalk</string>
+		<string>orpheus</string>
+		<string>iosamap</string>
+		<string>baidumap</string>
+		<string>imeituan</string>
+		<string>openapp.jdmobile</string>
+		<string>pinduoduo</string>
+		<string>xhsdiscover</string>
+		<string>kwai</string>
+		<string>openai</string>
+	</array>
+</dict>
+</plist>

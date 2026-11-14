@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A00000000000000000000050"
+               BlueprintIdentifier = "1A0000000000000000000006"
                BuildableName = "DeviceInspector.app"
                BlueprintName = "DeviceInspector"
                ReferencedContainer = "container:DeviceInspector.xcodeproj">
@@ -46,7 +46,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A00000000000000000000050"
+            BlueprintIdentifier = "1A0000000000000000000006"
             BuildableName = "DeviceInspector.app"
             BlueprintName = "DeviceInspector"
             ReferencedContainer = "container:DeviceInspector.xcodeproj">
@@ -63,7 +63,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A00000000000000000000050"
+            BlueprintIdentifier = "1A0000000000000000000006"
             BuildableName = "DeviceInspector.app"
             BlueprintName = "DeviceInspector"
             ReferencedContainer = "container:DeviceInspector.xcodeproj">
