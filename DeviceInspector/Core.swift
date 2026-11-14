@@ -1,6 +1,7 @@
 import SwiftUI
 import Charts
 
+import UIKit
 enum L {
     static var isZH: Bool { Locale.preferredLanguages.first?.hasPrefix("zh") ?? false }
     static func t(_ zh: String, _ en: String) -> String { isZH ? zh : en }
@@ -72,6 +73,13 @@ struct CheckResult: Identifiable {
     let icon: String
     let verdict: Verdict
     let detail: String
+}
+
+enum UIFeedback {
+    static func tap() {
+        guard UserDefaults.standard.bool(forKey: "hapticFeedback") else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
 }
 
 // MARK: - Liquid Glass helpers

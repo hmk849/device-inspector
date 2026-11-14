@@ -11,10 +11,10 @@ struct ReportPage: View {
             ScoreRing(score: health.score, size: 150)
             if let d = health.date { Text(d.formatted(date: .abbreviated, time: .standard)).font(.caption).foregroundStyle(.secondary) }
             HStack {
-                Button { Task { await health.run(bench: bench) } } label: {
+                Button { UIFeedback.tap(); Task { await health.run(bench: bench) } } label: {
                     Text(L.t("快速检测", "Quick scan")).frame(maxWidth: .infinity)
                 }.buttonStyle(.bordered)
-                Button { Task { await bench.runAll(); await health.run(bench: bench) } } label: {
+                Button { UIFeedback.tap(); Task { await bench.runAll(); await health.run(bench: bench) } } label: {
                     Text(L.t("完整检测（含性能）", "Full scan (with perf)")).frame(maxWidth: .infinity)
                 }.buttonStyle(.borderedProminent)
             }.disabled(busy)

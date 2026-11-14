@@ -434,11 +434,19 @@ struct BenchResult { var points: Int; var verdict: Verdict; var lines: [InfoItem
         return Int((v.reduce(0, +) / Double(v.count) / 10).rounded())
     }
 
-    func runAll() async { for k in [BenchKind.cpu, .gpu, .memory, .storage] { await run(k) } }
+    func runAll() async {
+        let awake = UserDefaults.standard.bool(forKey: "keepAwakeDuringTests")
+        if awake { UIApplication.shared.isIdleTimerDisabled = true }
+        for k in [BenchKind.cpu, .gpu, .memory, .storage] { await run(k) }
+        if awake { UIApplication.shared.isIdleTimerDisabled = false }
+    }
 
     func run(_ k: BenchKind) async {
         guard running == nil else { return }
-        running = k; defer { running = nil }
+        running = k
+        let awake = UserDefaults.standard.bool(forKey: "keepAwakeDuringTests")
+        if awake { UIApplication.shared.isIdleTimerDisabled = true }
+        defer { running = nil; if awake { UIApplication.shared.isIdleTimerDisabled = false } }
         let f1 = { (v: Double) in String(format: "%.1f", v) }
         switch k {
         case .cpu:
