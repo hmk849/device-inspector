@@ -58,11 +58,13 @@ enum Sys {
         "iPad14,3": "M2", "iPad14,5": "M2", "iPad16,3": "M4", "iPad16,5": "M4", "iPad14,8": "M2", "iPad14,10": "M2"
     ]
     static func dnsServers() -> String? {
-        var state = __res_9_state()
-        guard res_9_ninit(&state) == 0 else { return nil }
-        defer { res_9_ndestroy(&state) }
+        let state = UnsafeMutablePointer<__res_9_state>.allocate(capacity: 1)
+        defer { state.deallocate() }
+        _ = memset(state, 0, MemoryLayout<__res_9_state>.size)
+        guard res_9_ninit(state) == 0 else { return nil }
+        defer { res_9_ndestroy(state) }
         var servers = [res_9_sockaddr_union](repeating: res_9_sockaddr_union(), count: 5)
-        let n = Int(res_9_getservers(&state, &servers, 5))
+        let n = Int(res_9_getservers(state, &servers, 5))
         var out: [String] = []
         for i in 0..<max(0, min(n, 5)) {
             var u = servers[i]

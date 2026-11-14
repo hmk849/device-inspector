@@ -117,7 +117,8 @@ struct AudioPage: View {
 }
 
 struct TouchPage: View {
-    @State private var cur = 0, maxT = 0
+    @State private var cur = 0
+    @State private var maxT = 0
     var body: some View {
         Page(L.t("触摸屏 / 多点触控", "Touch / Multi-touch")) {
             InfoList(items: Info.touch())
